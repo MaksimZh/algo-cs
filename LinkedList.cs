@@ -49,27 +49,53 @@ namespace AlgorithmsDataStructures
 
     public bool Remove(int _value)
     {
-      if (head == null) {
-        return false;
-      }
-      if (head.value == _value) {
-        RemoveHead();
-        return true;
-      }
-      var cursor = head;
-      while (cursor != tail && cursor.next.value != _value) {
+      // Add node over the head to unify search and removal
+      var hat = new Node(0);
+      hat.next = head;
+      var cursor = hat;
+      while (cursor.next != null && cursor.next.value != _value) {
         cursor = cursor.next;
       }
-      if (cursor == tail) {
+      if (cursor.next == null) {
         return false;
       }
-      RemoveNodeAfter(cursor);
+      var next = cursor.next.next;
+      cursor.next = next;
+      if (cursor == hat) {
+        // We have dropped the head
+        head = next;
+        cursor = null;
+      }
+      if (next == null) {
+        // We have dropped the tail
+        // cursor is null if it was the only node (head)
+        tail = cursor;
+      }
       return true; // если узел был удалён
     }
 
     public void RemoveAll(int _value)
     {
-      // здесь будет ваш код удаления всех узлов по заданному значению
+      // Add node over the head to unify search and removal
+      var hat = new Node(0);
+      hat.next = head;
+      var last = hat;
+      var cursor = head;
+      while (cursor != null) {
+        if (cursor.value != _value) {
+          last.next = cursor;
+          last = cursor;
+          cursor = cursor.next;
+          continue;
+        }
+        last.next = null;
+        cursor = cursor.next;
+      }
+      head = hat.next;
+      tail = last;
+      if (tail == hat) {
+        tail = null;
+      }
     }
 
     public void Clear()
@@ -90,20 +116,5 @@ namespace AlgorithmsDataStructures
       // добавьте новый элемент первым в списке 
     }
 
-    private void RemoveHead() {
-      if (tail == head) {
-        head = null;
-        tail = null;
-        return;
-      }
-      head = head.next;
-    }
-
-    private void RemoveNodeAfter(Node cursor) {
-      cursor.next = cursor.next.next;
-      if (cursor.next == null) {
-        tail = cursor;
-      }
-    }
   }
 }
