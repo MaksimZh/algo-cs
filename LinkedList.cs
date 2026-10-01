@@ -43,7 +43,13 @@ namespace AlgorithmsDataStructures
     public List<Node> FindAll(int _value)
     {
       List<Node> nodes = new List<Node>();
-      // здесь будет ваш код поиска всех узлов по заданному значению
+      var cursor = head;
+      while (cursor != null) {
+        if (cursor.value == _value) {
+          nodes.Add(cursor);
+        }
+        cursor = cursor.next;
+      }
       return nodes;
     }
 
@@ -100,20 +106,34 @@ namespace AlgorithmsDataStructures
 
     public void Clear()
     {
-      // здесь будет ваш код очистки всего списка
+      head = null;
+      tail = null;
     }
 
     public int Count()
     {
-      return 0; // здесь будет ваш код подсчёта количества элементов в списке
+      var cursor = head;
+      int counter = 0;
+      while (cursor != null) {
+        cursor = cursor.next;
+        ++counter;
+      }
+      return counter;
     }
 
     public void InsertAfter(Node _nodeAfter, Node _nodeToInsert)
     {
-      // здесь будет ваш код вставки узла после заданного
-
-      // если _nodeAfter = null , 
-      // добавьте новый элемент первым в списке 
+      if (_nodeAfter == null) {
+        // Add node over the head to unify insertion
+        _nodeAfter = new Node(0);
+        _nodeAfter.next = head;
+        head = _nodeToInsert;
+      }
+      _nodeToInsert.next = _nodeAfter.next;
+      _nodeAfter.next = _nodeToInsert;
+      if (_nodeToInsert.next == null) {
+        tail = _nodeToInsert;
+      }
     }
 
   }
