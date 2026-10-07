@@ -91,7 +91,31 @@ namespace AlgorithmsDataStructures
 
     public void RemoveAll(int _value)
     {
-      // здесь будет ваш код удаления всех узлов по заданному значению
+      if (head == null) {
+        return;
+      }
+      var dummy = new Node(0);
+      dummy.next = head;
+      head.prev = dummy;
+      dummy.prev = tail;
+      tail.next = dummy;
+      var last = dummy;
+      for (var cursor = head; cursor != dummy; cursor = cursor.next) {
+        if (cursor.value != _value) {
+          cursor.prev = last;
+          last.next = cursor;
+          last = cursor;
+        }
+      }
+      if (last == dummy) {
+        head = null;
+        tail = null;
+        return;
+      }
+      head = dummy.next;
+      tail = last;
+      head.prev = null;
+      tail.next = null;
     }
 
     public void Clear()
@@ -106,11 +130,31 @@ namespace AlgorithmsDataStructures
 
     public void InsertAfter(Node _nodeAfter, Node _nodeToInsert)
     {
-      // здесь будет ваш код вставки узла после заданного узла
-
-      // если _nodeAfter = null
-      // добавьте новый элемент первым в списке 
-
+      if (head == null) {
+        head = _nodeToInsert;
+        tail = _nodeToInsert;
+        return;
+      }
+      var dummy = new Node(0);
+      dummy.next = head;
+      head.prev = dummy;
+      dummy.prev = tail;
+      tail.next = dummy;
+      if (_nodeAfter == null) {
+        _nodeAfter = dummy;
+      }
+      _nodeAfter.next.prev = _nodeToInsert;
+      _nodeToInsert.next = _nodeAfter.next;
+      _nodeAfter.next = _nodeToInsert;
+      _nodeToInsert.prev = _nodeAfter;
+      head = dummy.next;
+      tail = dummy.prev;
+      if (_nodeToInsert.prev == dummy) {
+        _nodeToInsert.prev = null;
+      }
+      if (_nodeToInsert.next == dummy) {
+        _nodeToInsert.next = null;
+      }
     }
 
   }

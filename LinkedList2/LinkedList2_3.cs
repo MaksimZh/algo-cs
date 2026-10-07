@@ -126,5 +126,209 @@ namespace AlgorithmsDataStructures {
       Assert.Equal(2, list.tail.value);
     }
 
+    [Fact]
+    public void RemoveAllFromEmpty() {
+      var list = new LinkedList2();
+      list.RemoveAll(42);
+    }
+
+    [Fact]
+    public void RemoveAllMissing() {
+      var list = new LinkedList2();
+      list.AddInTail(new Node(1));
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(3));
+      list.RemoveAll(42);
+      Assert.NotNull(list.Find(1));
+      Assert.NotNull(list.Find(2));
+      Assert.NotNull(list.Find(3));
+    }
+
+    [Fact]
+    public void RemoveAllSingle() {
+      var list = new LinkedList2();
+      list.AddInTail(new Node(42));
+      Assert.True(list.Remove(42));
+      Assert.Null(list.Find(42));
+      Assert.Null(list.head);
+      Assert.Null(list.tail);
+    }
+
+    [Fact]
+    public void RemoveAllHead() {
+      var list = new LinkedList2();
+      list.AddInTail(new Node(1));
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(3));
+      list.RemoveAll(1);
+      Assert.Null(list.Find(1));
+      Assert.NotNull(list.Find(2));
+      Assert.NotNull(list.Find(3));
+      Assert.Equal(2, list.head.value);
+      Assert.Equal(3, list.tail.value);
+    }
+
+    [Fact]
+    public void RemoveAllMiddle() {
+      var list = new LinkedList2();
+      list.AddInTail(new Node(1));
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(3));
+      list.RemoveAll(2);
+      Assert.NotNull(list.Find(1));
+      Assert.Null(list.Find(2));
+      Assert.NotNull(list.Find(3));
+      Assert.Equal(1, list.head.value);
+      Assert.Equal(3, list.tail.value);
+    }
+
+    [Fact]
+    public void RemoveAllTail() {
+      var list = new LinkedList2();
+      list.AddInTail(new Node(1));
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(3));
+      list.RemoveAll(3);
+      Assert.NotNull(list.Find(1));
+      Assert.NotNull(list.Find(2));
+      Assert.Null(list.Find(3));
+      Assert.Equal(1, list.head.value);
+      Assert.Equal(2, list.tail.value);
+    }
+
+    [Fact]
+    public void RemoveAllTwo() {
+      var list = new LinkedList2();
+      list.AddInTail(new Node(0));
+      list.AddInTail(new Node(0));
+      list.RemoveAll(0);
+      Assert.Null(list.Find(0));
+      Assert.Null(list.head);
+      Assert.Null(list.tail);
+    }
+
+    [Fact]
+    public void RemoveAllThree() {
+      var list = new LinkedList2();
+      list.AddInTail(new Node(0));
+      list.AddInTail(new Node(0));
+      list.AddInTail(new Node(0));
+      list.RemoveAll(0);
+      Assert.Null(list.Find(0));
+      Assert.Null(list.head);
+      Assert.Null(list.tail);
+    }
+
+    [Fact]
+    public void RemoveAllEnds() {
+      var list = new LinkedList2();
+      list.AddInTail(new Node(0));
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(3));
+      list.AddInTail(new Node(0));
+      list.RemoveAll(0);
+      Assert.Null(list.Find(0));
+      Assert.NotNull(list.Find(2));
+      Assert.NotNull(list.Find(3));
+      Assert.Equal(2, list.head.value);
+      Assert.Equal(3, list.tail.value);
+    }
+
+    [Fact]
+    public void RemoveAllTwoMiddle() {
+      var list = new LinkedList2();
+      list.AddInTail(new Node(1));
+      list.AddInTail(new Node(0));
+      list.AddInTail(new Node(0));
+      list.AddInTail(new Node(4));
+      list.RemoveAll(0);
+      Assert.Null(list.Find(0));
+      Assert.NotNull(list.Find(1));
+      Assert.NotNull(list.Find(4));
+      Assert.Equal(1, list.head.value);
+      Assert.Equal(4, list.tail.value);
+    }
+
+    [Fact]
+    public void RemoveAllMany() {
+      var list = new LinkedList2();
+      list.AddInTail(new Node(0));
+      list.AddInTail(new Node(0));
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(3));
+      list.AddInTail(new Node(0));
+      list.AddInTail(new Node(0));
+      list.AddInTail(new Node(6));
+      list.AddInTail(new Node(7));
+      list.AddInTail(new Node(0));
+      list.AddInTail(new Node(0));
+      list.AddInTail(new Node(10));
+      list.AddInTail(new Node(11));
+      list.AddInTail(new Node(0));
+      list.AddInTail(new Node(0));
+      list.RemoveAll(0);
+      Assert.Null(list.Find(0));
+      Assert.NotNull(list.Find(2));
+      Assert.NotNull(list.Find(3));
+      Assert.NotNull(list.Find(6));
+      Assert.NotNull(list.Find(7));
+      Assert.NotNull(list.Find(10));
+      Assert.NotNull(list.Find(11));
+      Assert.Equal(2, list.head.value);
+      Assert.Equal(11, list.tail.value);
+    }
+
+    [Fact]
+    public void InsertAfterEmpty() {
+      var list = new LinkedList2();
+      var x = new Node(42);
+      list.InsertAfter(null, x);
+      Assert.NotNull(list.Find(42));
+      Assert.Equal(x, list.head);
+      Assert.Equal(x, list.tail);
+    }
+
+    [Fact]
+    public void InsertAfterNewHead() {
+      var list = new LinkedList2();
+      var x = new Node(42);
+      list.AddInTail(new Node(1));
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(3));
+      list.InsertAfter(null, x);
+      Assert.NotNull(list.Find(42));
+      Assert.Equal(x, list.head);
+      Assert.Null(x.prev);
+      Assert.Equal(1, x.next.value);
+    }
+
+    [Fact]
+    public void InsertAfterNewTail() {
+      var list = new LinkedList2();
+      var x = new Node(42);
+      list.AddInTail(new Node(1));
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(3));
+      list.InsertAfter(list.tail, x);
+      Assert.NotNull(list.Find(42));
+      Assert.Equal(x, list.tail);
+      Assert.Equal(3, x.prev.value);
+      Assert.Null(x.next);
+    }
+
+    [Fact]
+    public void InsertAfterMiddle() {
+      var list = new LinkedList2();
+      var x = new Node(42);
+      var y = new Node(2);
+      list.AddInTail(new Node(1));
+      list.AddInTail(y);
+      list.AddInTail(new Node(3));
+      list.InsertAfter(y, x);
+      Assert.NotNull(list.Find(42));
+      Assert.Equal(x, y.next);
+      Assert.Equal(y, x.prev);
+      Assert.Equal(3, x.next.value);
+    }
   }
 }
