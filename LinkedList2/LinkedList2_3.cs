@@ -330,5 +330,38 @@ namespace AlgorithmsDataStructures {
       Assert.Equal(y, x.prev);
       Assert.Equal(3, x.next.value);
     }
+
+    [Fact]
+    public void ClearEmpty() {
+      var list = new LinkedList2();
+      list.Clear();
+      Assert.Null(list.head);
+      Assert.Null(list.tail);
+    }
+
+    [Fact]
+    public void Clear() {
+      var list = new LinkedList2();
+      list.AddInTail(new Node(1));
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(3));
+      list.Clear();
+      Assert.Null(list.head);
+      Assert.Null(list.tail);
+    }
+
+    [Fact]
+    public void Count() {
+      var list = new LinkedList2();
+      Assert.Equal(0, list.Count());
+      list.AddInTail(new Node(1));
+      Assert.Equal(1, list.Count());
+      list.AddInTail(new Node(2));
+      Assert.Equal(2, list.Count());
+      list.AddInTail(new Node(3));
+      Assert.Equal(3, list.Count());
+      list.Clear();
+      Assert.Equal(0, list.Count());
+    }
   }
 }
