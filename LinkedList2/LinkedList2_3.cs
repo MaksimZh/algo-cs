@@ -283,6 +283,8 @@ namespace AlgorithmsDataStructures {
       var list = new LinkedList2();
       var x = new Node(42);
       list.InsertAfter(null, x);
+      Assert.Null(list.head.prev);
+      Assert.Null(list.tail.next);
       Assert.NotNull(list.Find(42));
       Assert.Equal(x, list.head);
       Assert.Equal(x, list.tail);
@@ -296,6 +298,8 @@ namespace AlgorithmsDataStructures {
       list.AddInTail(new Node(2));
       list.AddInTail(new Node(3));
       list.InsertAfter(null, x);
+      Assert.Null(list.head.prev);
+      Assert.Null(list.tail.next);
       Assert.NotNull(list.Find(42));
       Assert.Equal(x, list.head);
       Assert.Null(x.prev);
@@ -310,6 +314,8 @@ namespace AlgorithmsDataStructures {
       list.AddInTail(new Node(2));
       list.AddInTail(new Node(3));
       list.InsertAfter(list.tail, x);
+      Assert.Null(list.head.prev);
+      Assert.Null(list.tail.next);
       Assert.NotNull(list.Find(42));
       Assert.Equal(x, list.tail);
       Assert.Equal(3, x.prev.value);
@@ -325,6 +331,8 @@ namespace AlgorithmsDataStructures {
       list.AddInTail(y);
       list.AddInTail(new Node(3));
       list.InsertAfter(y, x);
+      Assert.Null(list.head.prev);
+      Assert.Null(list.tail.next);
       Assert.NotNull(list.Find(42));
       Assert.Equal(x, y.next);
       Assert.Equal(y, x.prev);

@@ -153,13 +153,9 @@ namespace AlgorithmsDataStructures
       _nodeAfter.next = _nodeToInsert;
       _nodeToInsert.prev = _nodeAfter;
       head = dummy.next;
+      head.prev = null;
       tail = dummy.prev;
-      if (_nodeToInsert.prev == dummy) {
-        _nodeToInsert.prev = null;
-      }
-      if (_nodeToInsert.next == dummy) {
-        _nodeToInsert.next = null;
-      }
+      tail.next = null;
     }
 
   }
