@@ -714,7 +714,7 @@ namespace AlgorithmsDataStructures {
 
     [Fact]
     public void Count() {
-      var list = new LinkedList2();
+      var list = new LinkedList2X();
       Assert.Equal(0, list.Count());
       list.AddInTail(new Node(1));
       Assert.Equal(1, list.Count());
@@ -724,6 +724,203 @@ namespace AlgorithmsDataStructures {
       Assert.Equal(3, list.Count());
       list.Clear();
       Assert.Equal(0, list.Count());
+    }
+
+    [Fact]
+    public void InverseEmpty() {
+      var list = new LinkedList2X();
+      list.Inverse();
+      Assert.Null(list.Head());
+      Assert.Null(list.Tail());
+    }
+
+    [Fact]
+    public void InverseSingle() {
+      var list = new LinkedList2X();
+      list.AddInTail(new Node(1));
+      list.Inverse();
+      Assert.Equal(1, list.Head().value);
+      Assert.Equal(1, list.Tail().value);
+    }
+
+    [Fact]
+    public void Inverse() {
+      var list = new LinkedList2X();
+      var a = new Node(1);
+      var b = new Node(2);
+      var c = new Node(3);
+      list.AddInTail(a);
+      list.AddInTail(b);
+      list.AddInTail(c);
+      list.Inverse();
+      Assert.Equal(c, list.Head());
+      Assert.Equal(b, c.next);
+      Assert.Equal(c, b.prev);
+      Assert.Equal(a, b.next);
+      Assert.Equal(b, a.prev);
+      Assert.Equal(a, list.Tail());
+    }
+
+    [Fact]
+    public void HasLoopsEmpty() {
+      var list = new LinkedList2X();
+      Assert.False(list.HasLoops());
+    }
+
+    [Fact]
+    public void HasLoopsFalse() {
+      var list = new LinkedList2X();
+      list.AddInTail(new Node(1));
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(3));
+      Assert.False(list.HasLoops());
+    }
+
+    [Fact]
+    public void HasLoopsTrue() {
+      var list = new LinkedList2X();
+      var a = new Node(1);
+      var b = new Node(2);
+      var c = new Node(3);
+      list.AddInTail(a);
+      list.AddInTail(b);
+      list.AddInTail(c);
+      c.next = b;
+      Assert.True(list.HasLoops());
+    }
+
+    [Fact]
+    public void SortEmpty() {
+      var list = new LinkedList2X();
+      list.Sort();
+      Assert.Null(list.Head());
+      Assert.Null(list.Tail());
+    }
+
+    [Fact]
+    public void SortSingle() {
+      var list = new LinkedList2X();
+      list.AddInTail(new Node(1));
+      list.Sort();
+      Assert.Equal(1, list.Head().value);
+      Assert.Equal(1, list.Tail().value);
+    }
+
+    [Fact]
+    public void SortSorted2() {
+      var list = new LinkedList2X();
+      list.AddInTail(new Node(1));
+      list.AddInTail(new Node(2));
+      list.Sort();
+      Assert.Equal(1, list.Head().value);
+      Assert.Equal(2, list.Tail().value);
+    }
+
+    [Fact]
+    public void Sort2() {
+      var list = new LinkedList2X();
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(1));
+      list.Sort();
+      Assert.Equal(1, list.Head().value);
+      Assert.Equal(2, list.Tail().value);
+    }
+
+    [Fact]
+    public void SortSorted3() {
+      var list = new LinkedList2X();
+      list.AddInTail(new Node(1));
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(3));
+      list.Sort();
+      Assert.Equal(1, list.Head().value);
+      Assert.Equal(2, list.Head().next.value);
+      Assert.Equal(3, list.Tail().value);
+    }
+
+    [Fact]
+    public void Sort3() {
+      var list = new LinkedList2X();
+      list.AddInTail(new Node(3));
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(1));
+      list.Sort();
+      Assert.Equal(1, list.Head().value);
+      Assert.Equal(2, list.Head().next.value);
+      Assert.Equal(3, list.Tail().value);
+    }
+
+    [Fact]
+    public void SortMany() {
+      var list = new LinkedList2X();
+      list.AddInTail(new Node(3));
+      list.AddInTail(new Node(2));
+      list.AddInTail(new Node(7));
+      list.AddInTail(new Node(1));
+      list.AddInTail(new Node(5));
+      list.AddInTail(new Node(6));
+      list.AddInTail(new Node(8));
+      list.AddInTail(new Node(4));
+      list.Sort();
+      var cursor = list.Head();
+      for (int i = 1; i <= 8; ++i) {
+        Assert.Equal(i, cursor.value);
+        cursor = cursor.next;
+      }
+    }
+
+    [Fact]
+    public void MergeEmptyEmpty() {
+      var x = new LinkedList2X();
+      var y = new LinkedList2X();
+      var z = LinkedList2X.Merge(x, y);
+      Assert.Equal(0, z.Count());
+    }
+
+    [Fact]
+    public void MergeEmptyFull() {
+      var x = new LinkedList2X();
+      var y = new LinkedList2X();
+      y.AddInTail(new Node(2));
+      y.AddInTail(new Node(1));
+      y.AddInTail(new Node(3));
+      var z = LinkedList2X.Merge(x, y);
+      Assert.Equal(3, z.Count());
+      Assert.Equal(1, z.Head().value);
+      Assert.Equal(2, z.Head().next.value);
+      Assert.Equal(3, z.Tail().value);
+    }
+
+    [Fact]
+    public void MergeFullEmpty() {
+      var x = new LinkedList2X();
+      x.AddInTail(new Node(2));
+      x.AddInTail(new Node(1));
+      x.AddInTail(new Node(3));
+      var y = new LinkedList2X();
+      var z = LinkedList2X.Merge(x, y);
+      Assert.Equal(3, z.Count());
+      Assert.Equal(1, z.Head().value);
+      Assert.Equal(2, z.Head().next.value);
+      Assert.Equal(3, z.Tail().value);
+    }
+
+    [Fact]
+    public void MergeFullFull() {
+      var x = new LinkedList2X();
+      x.AddInTail(new Node(5));
+      x.AddInTail(new Node(2));
+      var y = new LinkedList2X();
+      x.AddInTail(new Node(4));
+      x.AddInTail(new Node(1));
+      x.AddInTail(new Node(3));
+      var z = LinkedList2X.Merge(x, y);
+      Assert.Equal(5, z.Count());
+      var cursor = z.Head();
+      for (int i = 1; i <= 5; ++i) {
+        Assert.Equal(i, cursor.value);
+        cursor = cursor.next;
+      }
     }
   }
 }
