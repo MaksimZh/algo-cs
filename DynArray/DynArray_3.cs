@@ -399,3 +399,40 @@ public class DynArrayBTest {
       Assert.Equal(16, a.array.Length);
     }
 }
+
+public class NDArrayTest {
+    [Fact]
+    public void MakeArray() {
+      NDArray<int> a = new NDArray<int>([1, 2, 3]);
+      Assert.Equal(1, a.Length(0));
+      Assert.Equal(2, a.Length(1));
+      Assert.Equal(3, a.Length(2));
+    }
+
+    [Fact]
+    public void SetGetItem() {
+      NDArray<int> a = new NDArray<int>([5, 6, 7]);
+      a[0, 0, 0] = 1;
+      a[1, 2, 3] = 2;
+      a[4, 5, 6] = 3;
+      Assert.Equal(5, a.Length(0));
+      Assert.Equal(6, a.Length(1));
+      Assert.Equal(7, a.Length(2));
+      Assert.Equal(1, a[0, 0, 0]);
+      Assert.Equal(2, a[1, 2, 3]);
+      Assert.Equal(3, a[4, 5, 6]);
+      Assert.Equal(0, a[0, 2, 3]);
+    }
+
+    [Fact]
+    public void Extend() {
+      NDArray<int> a = new NDArray<int>([1, 2, 3]);
+      a[0, 0, 0] = 1;
+      a[10, 20, 40] = 2;
+      Assert.Equal(11, a.Length(0));
+      Assert.Equal(21, a.Length(1));
+      Assert.Equal(41, a.Length(2));
+      Assert.Equal(1, a[0, 0, 0]);
+      Assert.Equal(2, a[10, 20, 40]);
+    }
+}
