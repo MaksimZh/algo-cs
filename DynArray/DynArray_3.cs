@@ -86,10 +86,21 @@ public class DynArrayTest {
       Assert.Throws<Exception>(() => a.Insert(42, -1));
       Assert.Throws<Exception>(() => a.Insert(42, 6));
       Assert.Equal(16, a.array.Length);
-      for (int i = 5; i < 17; ++i) {
-        a.Insert(42, 0);
+      for (int i = 5; i <= 16; ++i) {
+        a.Insert(42, 2);
       }
+      Assert.Equal(16, a.count);
+      Assert.Equal(16, a.array.Length);
+      a.Insert(42, 2);
+      Assert.Equal(17, a.count);
       Assert.Equal(32, a.array.Length);
+      Assert.Equal(2, a.GetItem(0));
+      Assert.Equal(3, a.GetItem(1));
+      for (int i = 2; i < 15; ++i) {
+        Assert.Equal(42, a.GetItem(i));
+      }
+      Assert.Equal(1, a.GetItem(15));
+      Assert.Equal(4, a.GetItem(16));
     }
 
     [Fact]

@@ -55,7 +55,7 @@ namespace AlgorithmsDataStructures
       if (index < 0 || index > count) {
         throw new Exception("Index out of range");
       }
-      if (count + 1 == capacity) {
+      if (count == capacity) {
         Extend();
       }
       for (int i = count; i > index; --i) {  // loop => O(N)
