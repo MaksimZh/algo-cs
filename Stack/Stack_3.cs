@@ -59,6 +59,50 @@ public class StackUtilsTest {
     Assert.False(StackUtils.AreBalancedParentheses("]})({["));
     Assert.False(StackUtils.AreBalancedParentheses("({[{}]){[()]}[()]"));
   }
+
+  [Fact]
+  void TestEvalPostfixEmpty() {
+    Stack<string> source = new Stack<string>();
+    Assert.Null(StackUtils.EvalPostfix(source));
+  }
+
+  [Fact]
+  void TestEvalPostfixReady() {
+    Stack<string> source = new Stack<string>();
+    source.Push("42");
+    Assert.Equal(42, StackUtils.EvalPostfix(source));
+  }
+
+  [Fact]
+  void TestEvalPostfixSum() {
+    Stack<string> source = new Stack<string>();
+    source.Push("+");
+    source.Push("40");
+    source.Push("2");
+    Assert.Equal(42, StackUtils.EvalPostfix(source));
+  }
+
+  [Fact]
+  void TestEvalPostfixSumMul() {
+    Stack<string> source = new Stack<string>();
+    source.Push("*");
+    source.Push("3");
+    source.Push("+");
+    source.Push("2");
+    source.Push("1");
+    Assert.Equal(9, StackUtils.EvalPostfix(source));
+  }
+
+  [Fact]
+  void TestEvalPostfixError() {
+    Stack<string> source = new Stack<string>();
+    source.Push("*");
+    source.Push("3");
+    source.Push("+");
+    source.Push("foo");
+    source.Push("1");
+    Assert.Null(StackUtils.EvalPostfix(source));
+  }
 }
 
 public class StackXIntTest {

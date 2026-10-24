@@ -70,6 +70,66 @@ public static class StackUtils {
     }
     return stack.Size() == 0;
   }
+
+  private static Dictionary<string, Func<int, int, int>> eval_ops = 
+    new Dictionary<string, Func<int, int, int>> {
+      {"+", (a, b) => a + b},
+      {"*", (a, b) => a * b},
+    };
+
+  public static int? EvalPostfix(Stack<string> source) {
+    Stack<int> stack = new Stack<int>();
+    while (source.Size() > 0) {
+      // Почти монада. Не хотел вложенные if-ы.
+      string? top = source.Pop();
+      if (top == "") {
+        return null;
+      }
+      top = MaybeEval(top, stack);
+      top = MaybeStore(top, stack);
+      if (top == null) {
+        return null;
+      }
+    }
+    if (stack.Size() != 1) {
+      return null;
+    }
+    return stack.Pop();
+  }
+
+  private static string? MaybeEval(string? key, Stack<int> stack) {
+    if (key == null) {
+      return null;
+    }
+    if (key == "") {
+      return "";
+    }
+    if (!eval_ops.ContainsKey(key)) {
+      return key;
+    }
+    if (stack.Size() < 2) {
+      return null;
+    }
+    int a = stack.Pop();
+    int b = stack.Pop();
+    stack.Push(eval_ops[key](a, b));
+    return "";
+  }
+
+  private static string? MaybeStore(string? key, Stack<int> stack) {
+    if (key == null) {
+      return null;
+    }
+    if (key == "") {
+      return "";
+    }
+    bool parse_succeeded = int.TryParse(key, out int value);
+    if (!parse_succeeded) {
+      return null;
+    }
+    stack.Push(value);
+    return "";
+  }
 }
 
 public class StackXInt {
