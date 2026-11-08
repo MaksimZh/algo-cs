@@ -44,6 +44,7 @@
 namespace AlgorithmsDataStructures;
 
 public static class DequeUtils {
+  // 4.*
   public static bool IsPalindrom(string s) {
     Deque<char> dq = new Deque<char>();
     foreach (char c in s) {
@@ -58,6 +59,7 @@ public static class DequeUtils {
   }
 }
 
+// 6.*
 class DequeX<T> {
   private T[] storage_;
   private int count_;
@@ -197,6 +199,7 @@ class DequeIntMin {
     return head_.Size() + tail_.Size();
   }
 
+  // 5.*
   public int? Minimal() {
     int? hm = head_.Minimal();
     int? tm = tail_.Minimal();
