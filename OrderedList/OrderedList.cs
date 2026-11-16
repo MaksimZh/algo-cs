@@ -17,21 +17,33 @@ namespace AlgorithmsDataStructures
       parent = null;
       child = null;
     }
+
+    public Node<T> Clone() {
+      return new Node<T>(value);
+    }
+  }
+
+  class DummyNode<T> : Node<T> {
+    public DummyNode() : base(default(T)) {}
+    public DummyNode<T> Clone() {
+      return new DummyNode<T>();
+    }
   }
 
   public class OrderedList<T>
   {
     public Node<T> head, tail;  // Bottom full list to fit tests if any
     private bool _ascending;
-    private Node<T> head_, tail_;  // Top level
+    private DummyNode<T> dummy_;
 
     public OrderedList(bool asc)
     {
       head = null;
       tail = null;
       _ascending = asc;
-      head_ = null;
-      tail_ = null;
+      dummy_ = new DummyNode<T>();
+      dummy_.prev = dummy_;
+      dummy_.next = dummy_;
     }
 
     public int Compare(T v1, T v2)
@@ -46,25 +58,19 @@ namespace AlgorithmsDataStructures
     public void Add(T value)
     {
       Node<T> node = new Node<T>(value);
-      if (head_ == null) {
-        head = node;
-        tail = node;
-        head_ = node;
-        tail_ = node;
-        return;
-      }
-      if (Ordered(node.value, head_.value)) {
-        ReplaceHead(node);
-        return;
-      }
       Node<T> current = FindPosition(node.value);
-      if (current.next == null) {
-        ReplaceTail(node);
-        return;
-      }
+      Console.WriteLine(current.value);
       Node<T> next = current.next;
       current.next = node;
+      node.prev = current;
       node.next = next;
+      next.prev = node;
+      if (node.prev is DummyNode<T>) {
+        head = node;
+      }
+      if (node.next is DummyNode<T>) {
+        tail = node;
+      }
       FixNodeTree(node);
     }
 
@@ -74,7 +80,11 @@ namespace AlgorithmsDataStructures
         return null;
       }
       Node<T> prev = FindPosition(val);
-      if (prev.next != null && Compare(prev.next.value, val) == 0) {
+      if (prev == null && Compare(head.value, val) == 0) {
+        return head;
+      }
+      if (prev != null && prev.next != null &&
+          Compare(prev.next.value, val) == 0) {
         return prev.next;
       }
       return null;
@@ -86,14 +96,6 @@ namespace AlgorithmsDataStructures
       if (node == null) {
         return;
       }
-      if (node == head) {
-        DeleteHead();
-        return;
-      }
-      if (node == tail) {
-        DeleteTail();
-        return;
-      }
     }
 
     public void Clear(bool asc)
@@ -101,44 +103,55 @@ namespace AlgorithmsDataStructures
       _ascending = asc;
       head = null;
       tail = null;
-      head_ = null;
-      tail_ = null;
+      dummy_ = new DummyNode<T>();
+      dummy_.prev = dummy_;
+      dummy_.next = dummy_;
     }
 
     public int Count()
     {
+      if (head == null) {
+        return 0;
+      }
       int count = 0;
-      for (Node<T> current = head; current != null; current = current.next) {
+      for (Node<T> current = head;
+           !(current is DummyNode<T>);
+           current = current.next) {
         ++count;
       }
       return count;
     }
 
-    List<Node<T>> GetAll() // выдать все элементы упорядоченного 
-                           // списка в виде стандартного списка
+    public List<Node<T>> GetAll() // выдать все элементы упорядоченного 
+                                  // списка в виде стандартного списка
     {
       List<Node<T>> r = new List<Node<T>>();
-      Node<T> node = head_;
-      while(node != null)
-      {
+      if (head == null) {
+        return r;
+      }
+      for (Node<T> node = head;
+           !(node is DummyNode<T>);
+           node = node.next) {
         r.Add(node);
-        node = node.next;
       }
       return r;
     }
 
     private bool Ordered(T left, T right) {
       int s = Compare(left, right);
-      return _ascending ? s < 0 : s > 0;
+      return _ascending ? s <= 0 : s >= 0;
     }
 
     private Node<T> FindPosition(T val) {
-      Node<T> current = head_;
-      for (;
-           current.next != null;
-           current = current.next) {
-        if (Ordered(val, current.value)) {
+      Console.WriteLine("FindPosition");
+      Node<T> current = dummy_;
+      while (true) {
+        Console.WriteLine(current.value);
+        if (!(current.next is DummyNode<T>) &&
+            !Ordered(val, current.next.value)) {
           // We are on the left of the correct position.
+          current = current.next;
+          Console.WriteLine("next");
           continue;
         }
         if (current.child == null) {
@@ -147,11 +160,8 @@ namespace AlgorithmsDataStructures
         }
         // The correct position is below.
         current = current.child;
+        Console.WriteLine("child");
       }
-      // The correct position is the very end.
-      for (;
-           current.child != null;
-           current = current.child) {}
       return current;
     }
 
@@ -159,79 +169,40 @@ namespace AlgorithmsDataStructures
       Node<T> left = node;
       int left_shift = 0;
       for (;
-           left.parent == null && left.prev != null;
+           left.parent == null && !(left is DummyNode<T>);
            left = left.prev) {
         ++left_shift;
       }
       Node<T> right = node;
       int right_shift = 0;
       for (;
-           right.parent == null && right.next != null;
+           right.parent == null && !(right is DummyNode<T>);
            right = right.next) {
         ++right_shift;
       }
-      if (left_shift + right_shift <= 4) {
+      if (left_shift + right_shift < 4) {
         return;
       }
-      // We have 3 elements in a row without parents.
-      // Raise the middle one.
+      // There is a group of 5 elements. Raise the middle one.
+      if (left.parent == null) {
+        DummyNode<T> dummy_parent = dummy_.Clone();
+        dummy_parent.child = dummy_;
+        dummy_.parent = dummy_parent;
+        dummy_parent.prev = dummy_parent;
+        dummy_parent.next = dummy_parent;
+        dummy_ = dummy_parent;
+      }
       Node<T> middle = left.next.next;
-      Node<T> parent = new Node<T>(node.value);
+      Node<T> parent = middle.Clone();
       parent.child = middle;
-      middle.parent = parent; 
+      middle.parent = parent;
       Node<T> left_parent = left.parent;
       Node<T> right_parent = right.parent;
-      if (left_parent == null && right_parent == tail_) {
-        head_ = new Node<T>(head_.value);
-        left_parent = head_;
-        tail_ = new Node<T>(tail_.value);
-        right_parent = tail_;
-      }
-      left_parent.child = left;
-      left.parent = left_parent;
       left_parent.next = parent;
       parent.prev = left_parent;
-      right_parent.child = right;
-      right.parent = right_parent;
       right_parent.prev = parent;
       parent.next = right_parent;
       FixNodeTree(parent);
     }
-
-    private void ReplaceHead(Node<T> node) {
-      node.next = head;
-      head.prev = node;
-      head = node;
-      Node<T> right = head.parent;
-      for (; right != null; right = right.parent) {
-        Node<T> parent = new Node<T>(node.value);
-        parent.child = node;
-        node.parent = parent;
-        parent.next = right;
-        right.prev = parent;
-        node = parent;
-      }
-      head_ = right;
-    }
-
-    private void ReplaceTail(Node<T> node) {
-      node.prev = tail;
-      tail.next = node;
-      tail = node;
-      Node<T> left = tail.parent;
-      for (; left != null; left = left.parent) {
-        Node<T> parent = new Node<T>(node.value);
-        parent.child = node;
-        node.parent = parent;
-        parent.prev = left;
-        left.next = parent;
-        node = parent;
-      }
-      tail_ = left;
-    }
-
-    private void DeleteHead() {}
-
-    private void DeleteTail() {}
   }
 }
