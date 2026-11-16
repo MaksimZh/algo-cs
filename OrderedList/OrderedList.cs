@@ -58,8 +58,7 @@ namespace AlgorithmsDataStructures
     public void Add(T value)
     {
       Node<T> node = new Node<T>(value);
-      Node<T> current = FindPosition(node.value);
-      Console.WriteLine(current.value);
+      Node<T> current = FindPosition(dummy_, node.value);
       Node<T> next = current.next;
       current.next = node;
       node.prev = current;
@@ -76,16 +75,10 @@ namespace AlgorithmsDataStructures
 
     public Node<T> Find(T val)
     {
-      if (head == null) {
-        return null;
-      }
-      Node<T> prev = FindPosition(val);
-      if (prev == null && Compare(head.value, val) == 0) {
-        return head;
-      }
-      if (prev != null && prev.next != null &&
-          Compare(prev.next.value, val) == 0) {
-        return prev.next;
+      Node<T> node = FindPosition(dummy_, val);
+      if (!(node.next is DummyNode<T>) &&
+          Compare(node.next.value, val) == 0) {
+        return node.next;
       }
       return null;
     }
@@ -96,6 +89,7 @@ namespace AlgorithmsDataStructures
       if (node == null) {
         return;
       }
+      RemoveNode(node);
     }
 
     public void Clear(bool asc)
@@ -142,27 +136,16 @@ namespace AlgorithmsDataStructures
       return _ascending ? s <= 0 : s >= 0;
     }
 
-    private Node<T> FindPosition(T val) {
-      Console.WriteLine("FindPosition");
-      Node<T> current = dummy_;
-      while (true) {
-        Console.WriteLine(current.value);
-        if (!(current.next is DummyNode<T>) &&
-            !Ordered(val, current.next.value)) {
-          // We are on the left of the correct position.
-          current = current.next;
-          Console.WriteLine("next");
-          continue;
-        }
-        if (current.child == null) {
-          // We are on the correct position at the bottom level.
-          return current;
-        }
-        // The correct position is below.
-        current = current.child;
-        Console.WriteLine("child");
+    private Node<T> FindPosition(Node<T> start, T val) {
+      Node<T> current = start;
+      for (;
+           !(current.next is DummyNode<T>) &&
+           !Ordered(val, current.next.value);
+           current = current.next) {}
+      if (current.child == null) {
+        return current;
       }
-      return current;
+      return FindPosition(current.child, val);
     }
 
     private void FixNodeTree(Node<T> node) {
@@ -203,6 +186,25 @@ namespace AlgorithmsDataStructures
       right_parent.prev = parent;
       parent.next = right_parent;
       FixNodeTree(parent);
+    }
+
+    private void RemoveNode(Node<T> node) {
+      if (head == node) {
+        head = (node.next is DummyNode<T>) ? null : node.next;
+      }
+      if (tail == node) {
+        tail = (node.prev is DummyNode<T>) ? null : node.prev;
+      }
+      node.prev.next = node.next;
+      node.next.prev = node.prev;
+      if (node.parent != null) {
+        RemoveNode(node.parent);
+        return;
+      }
+      if (dummy_.next == dummy_ && dummy_.child != null) {
+        dummy_ = (DummyNode<T>)dummy_.child;
+        dummy_.parent = null;
+      }
     }
   }
 }
