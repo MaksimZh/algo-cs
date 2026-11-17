@@ -297,4 +297,64 @@ public class OrderedListTest
     Assert.Null(list.Find("70").parent);
     Assert.Null(list.Find("60").parent.parent);
   }
+
+  [Fact]
+  public void TestDuplicates() {
+    OrderedList<int> list = new OrderedList<int>(true);
+    list.Add(10);
+    list.Add(10);
+    list.Add(10);
+    list.Add(10);
+    list.Add(10);
+    list.Add(10);
+    list.Add(10);
+    Assert.Equal(7, list.Count());
+    Assert.Equal(10, list.head.value);
+    Assert.Equal(10, list.tail.value);
+    Node<int> x = list.head;
+    Assert.Equal(10, x.value);
+    Assert.Null(x.parent);
+    x = x.next;
+    Assert.Equal(10, x.value);
+    Assert.Equal(10, x.parent.value);
+    Assert.Null(x.parent.parent);
+    x = x.next;
+    Assert.Equal(10, x.value);
+    Assert.Null(x.parent);
+    x = x.next;
+    Assert.Equal(10, x.value);
+    Assert.Equal(10, x.parent.value);
+    Assert.Equal(10, x.parent.parent.value);
+    Assert.Null(x.parent.parent.parent);
+    x = x.next;
+    Assert.Equal(10, x.value);
+    Assert.Null(x.parent);
+    x = x.next;
+    Assert.Equal(10, x.value);
+    Assert.Equal(10, x.parent.value);
+    Assert.Null(x.parent.parent);
+    x = x.next;
+    Assert.Equal(10, x.value);
+    Assert.Null(x.parent);
+  }
+
+  [Fact]
+  public void TestRemoveDuplicates() {
+    OrderedList<int> list = new OrderedList<int>(true);
+    list.Add(10);
+    list.Add(20);
+    list.Add(30);
+    list.Add(40);
+    list.Add(20);
+    list.Add(30);
+    list.Add(40);
+    list.Add(20);
+    list.Add(30);
+    list.Add(30);
+    list.RemoveDuplicates();
+    Assert.Equal(4, list.Count());
+    Assert.Equal(10, list.head.value);
+    Assert.Equal(40, list.tail.value);
+    Assert.Equal([10, 20, 30, 40], ToValues(list.GetAll()));
+  }
 }

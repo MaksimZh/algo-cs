@@ -131,6 +131,17 @@ namespace AlgorithmsDataStructures
       return r;
     }
 
+    public void RemoveDuplicates() {
+      for (Node<T> current = head;
+           !(current.next is DummyNode<T>);
+           current = current.next) {
+        while (!(current.next is DummyNode<T>) &&
+               Compare(current.value, current.next.value) == 0) {
+          RemoveNode(current.next);
+        }
+      }
+    }
+
     private bool Ordered(T left, T right) {
       int s = Compare(left, right);
       return _ascending ? s <= 0 : s >= 0;
