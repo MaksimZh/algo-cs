@@ -220,7 +220,9 @@ public class OrderedListTest
     Assert.Equal([30, 60, 70], ToValues(list.GetAll()));
     CheckStructure(list);
 
+    Console.WriteLine(">>>>>>>>>>");
     list.Delete(60);
+    CheckStructure(list);
     Assert.Equal(2, list.Count());
     Assert.Equal(30, list.head.value);
     Assert.Equal(70, list.tail.value);
@@ -314,7 +316,7 @@ public class OrderedListTest
     Assert.Equal(10, list.tail.value);
     CheckStructure(list);
   }
-/* 
+
   [Fact]
   public void TestRemoveDuplicates() {
     OrderedList<int> list = new OrderedList<int>(true);
@@ -389,6 +391,7 @@ public class OrderedListTest
     b.Add(5);
     b.Add(5);
     b.Add(8);
+    CheckStructure(a);
     Assert.False(a.HasSublist(b));
   }
 
@@ -414,6 +417,7 @@ public class OrderedListTest
     Assert.Equal(5, a.MostFrequent());
   }
 
+/* 
   [Fact]
   public void TestIndexOf() {
     OrderedList<int> a = new OrderedList<int>(true);

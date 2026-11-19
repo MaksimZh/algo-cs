@@ -32,24 +32,19 @@
 namespace AlgorithmsDataStructures;
 
 public partial class OrderedList<T> {
-  /*
   // 8.*
   public void RemoveDuplicates() {
     if (head == null) {
       return;
     }
-    Node<T> dummy = head.prev;
     for (Node<T> current = head;
-          !(current.next is DummyNode<T>);
-          current = current.next) {
+         !(current.next is Sentinel<T>);
+         current = current.next) {
       for (;
-            !(current.next is DummyNode<T>)
-              && Compare(current.value, current.next.value) == 0;
-            RemoveNodeWithParents(dummy, current.next)) {}
+           !(current.next is Sentinel<T>)
+             && Compare(current.value, current.next.value) == 0;
+        DeleteNode(current.next)) {}
     }
-    head = dummy.next;
-    tail = dummy.prev;
-    FixLists();
   }
 
   // 9.*
@@ -57,29 +52,23 @@ public partial class OrderedList<T> {
     if (other._ascending != _ascending) {
       return new OrderedList<T>(_ascending);
     }
-    List<T> dest = new List<T>(capacity: Count() + other.Count());
+    OrderedList<T> result = new OrderedList<T>(_ascending);
 
     // Head may be null. Find the dummy nodes instead.
-    Node<T> a = root_;
-    for (; a.child != null; a = a.child) {}
-    a = a.next;
-    Node<T> b = other.root_;
-    for (; b.child != null; b = b.child) {}
-    b = b.next;
+    Node<T> a = bottom_.next;
+    Node<T> b = other.bottom_.next;
 
     for (int i = 0; i < Count() + other.Count(); ++i) {
-      if (b is DummyNode<T> ||
-          (!(a is DummyNode<T>) && Ordered(a.value, b.value))) {
-        dest.Add(a.value);
+      if (b is Sentinel<T> ||
+          (!(a is Sentinel<T>) && Ordered(a.value, b.value))) {
+        result.Add(a.value);
         a = a.next;
         continue;
       }
-      dest.Add(b.value);
+      result.Add(b.value);
       b = b.next;
     }
 
-    OrderedList<T> result = new OrderedList<T>(_ascending);
-    result.LoadSorted(dest);
     return result;
   }
 
@@ -93,12 +82,14 @@ public partial class OrderedList<T> {
       // No list - no sublists.
       return false;
     }
-    Node<T> a = root_;
-    for (Node<T> b = other.head; !(b is DummyNode<T>); b = b.next) {
-      a = Scan(a, b.value);
-      if (a == null || Compare(a.value, b.value) != 0) {
+    Node<T> a = top_;
+    for (Node<T> b = other.head; !(b is Sentinel<T>); b = b.next) {
+      (Node<T> s, Node<T> x) = Scan(a, b.value);
+      if (x == null || Compare(x.value, b.value) != 0) {
         return false;
       }
+      Console.WriteLine($"{s.value} {x.value}");
+      a = s;
     }
     return true;
   }
@@ -111,7 +102,7 @@ public partial class OrderedList<T> {
     (T, int)? most_vf = null;
     (T, int) vf = (head.value, 0);
     for (Node<T> current = head;
-         !(current is DummyNode<T>);
+         !(current is Sentinel<T>);
          current = current.next) {
       if (Compare(vf.Item1, current.value) == 0) {
         ++vf.Item2;
@@ -125,19 +116,20 @@ public partial class OrderedList<T> {
     return most_vf.Value.Item1;
   }
 
-  private Node<T> Scan(Node<T> start, T val) {
+  private (Node<T> start, Node<T> found) Scan(Node<T> start, T val) {
     Node<T> current = start;
     for (;
-         !(current.next is DummyNode<T>) && !Ordered(val, current.next.value);
+         !(current.next is Sentinel<T>) && !Ordered(val, current.next.value);
          current = current.next) {}
-    if (!(current.next is DummyNode<T>)
+    Console.WriteLine(current.value);
+    if (!(current.next is Sentinel<T>)
           && Compare(val, current.next.value) == 0) {
-      return current.next;
+      return (current.next, current.next);
     }
     if (current.child == null) {
-      return null;
+      return (current, null);
     }
-    return Scan(current.child, val);
+    (Node<T> s, Node<T> x) = Scan(current.child, val);
+    return ((s.next is Sentinel<T>) ? s : current, x);
   }
-  */
 }
