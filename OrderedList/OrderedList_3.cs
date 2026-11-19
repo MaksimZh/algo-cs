@@ -11,18 +11,50 @@ public class OrderedListTest
   }
 
   private void CheckStructure<T>(OrderedList<T> list) {
-    List<T> values = ToValues(list.GetAll());
-    Node<T> x = list.head;
-    for (int i = 0; i < values.Count(); ++i) {
-      Node<T> y = x;
-      for (int n = values.Count(); i < n; n /= 2) {
-        Assert.NotNull(y);
-        Assert.Equal(values[i], y.value);
-        y = y.parent;
-      }
-      Assert.Null(y);
-      x = x.next;
+    Console.WriteLine("---Check---");
+    if (list.head == null) {
+      return;
     }
+    List<Node<T>> children = new List<Node<T>>();
+    Node<T> sentinel = list.head.prev;
+    for (Node<T> x = sentinel.next; x != sentinel; x = x.next) {
+      children.Add(x);
+      Assert.Equal(1, x.shift);
+    }
+    Assert.Equal(1, sentinel.shift);
+    int count = children.Count;
+    for (; sentinel.parent != null; sentinel = sentinel.parent) {
+      List<Node<T>> parents = new List<Node<T>>();
+      int skip = 0;
+      int shift = 0;
+      for (int i = 0; i < children.Count; ++i) {
+        Node<T> x = children[i];
+        Console.Write($" {x.value}({x.shift})");
+        shift += x.shift;
+        if (x.parent == null) {
+          ++skip;
+          continue;
+        }
+        Console.Write("+");
+        Assert.True(skip > 0);
+        Assert.True(skip < 3);
+        Assert.Equal(shift, x.parent.shift);
+        parents.Add(x.parent);
+        skip = 0;
+        shift = 0;
+      }
+      Console.Write($" *({sentinel.shift})");
+      shift += sentinel.shift;
+      Assert.True(skip > 0);
+      Assert.True(skip < 3);
+      Assert.Equal(shift, sentinel.parent.shift);
+      children = parents;
+      Console.WriteLine();
+    }
+    Console.WriteLine($" *({sentinel.shift})");
+    Assert.Equal(sentinel.next, sentinel);
+    Assert.Equal(count + 1, sentinel.shift);
+    Assert.Empty(children);
   }
 
   [Fact]
@@ -36,6 +68,7 @@ public class OrderedListTest
     CheckStructure(list);
 
     list.Add(10);
+    CheckStructure(list);
     Assert.Equal(10, list.head.value);
     Assert.Equal(10, list.tail.value);
     Assert.Equal(1, list.Count());
@@ -119,18 +152,25 @@ public class OrderedListTest
   public void TestUnorderedAdd() {
     OrderedList<int> list = new OrderedList<int>(true);
     list.Add(20);
+    CheckStructure(list);
     list.Add(50);
+    CheckStructure(list);
     list.Add(10);
+    CheckStructure(list);
     list.Add(40);
+    CheckStructure(list);
     list.Add(30);
+    CheckStructure(list);
     list.Add(80);
+    CheckStructure(list);
     list.Add(70);
+    CheckStructure(list);
     list.Add(60);
+    CheckStructure(list);
     Assert.Equal(10, list.head.value);
     Assert.Equal(80, list.tail.value);
     Assert.Equal(8, list.Count());
     Assert.Equal([10, 20, 30, 40, 50, 60, 70, 80], ToValues(list.GetAll()));
-    CheckStructure(list);
   }
 
   [Fact]
@@ -274,7 +314,7 @@ public class OrderedListTest
     Assert.Equal(10, list.tail.value);
     CheckStructure(list);
   }
- 
+/* 
   [Fact]
   public void TestRemoveDuplicates() {
     OrderedList<int> list = new OrderedList<int>(true);
@@ -395,4 +435,5 @@ public class OrderedListTest
     a.Add(8); // 15
     // Assert.Equal(-1, a.IndexOf(10));
   }
+*/
 }

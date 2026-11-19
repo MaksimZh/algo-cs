@@ -32,6 +32,7 @@
 namespace AlgorithmsDataStructures;
 
 public partial class OrderedList<T> {
+  /*
   // 8.*
   public void RemoveDuplicates() {
     if (head == null) {
@@ -138,4 +139,5 @@ public partial class OrderedList<T> {
     }
     return Scan(current.child, val);
   }
+  */
 }

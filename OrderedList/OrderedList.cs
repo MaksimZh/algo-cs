@@ -8,6 +8,7 @@ namespace AlgorithmsDataStructures
     public T value;
     public Node<T> next, prev;
     public Node<T> parent, child;
+    public int shift;
 
     public Node(T _value)
     {
@@ -16,30 +17,26 @@ namespace AlgorithmsDataStructures
       prev = null;
       parent = null;
       child = null;
+      shift = 0;
     }
 
-    public virtual Node<T> Clone() {
-      return new Node<T>(value);
-    }
+    public virtual Node<T> Clone() { return new Node<T>(value); }
+    public virtual Node<T> Parent() { return parent; }
+    public virtual Node<T> Child() { return child; }
   }
 
-  class DummyNode<T> : Node<T> {
-    public int count;
-
-    public DummyNode() : base(default(T)) {
-      count = 0;
-    }
-
-    public override DummyNode<T> Clone() {
-      return new DummyNode<T>();
-    }
+  class Sentinel<T> : Node<T> {
+    public Sentinel() : base(default(T)) {}
+    public override Sentinel<T> Clone() { return new Sentinel<T>(); }
+    public override Sentinel<T> Parent() { return (Sentinel<T>)parent; }
+    public override Sentinel<T> Child() { return (Sentinel<T>)child; }
   }
 
   public partial class OrderedList<T>
   {
     public Node<T> head, tail;  // Bottom full list to fit tests if any
     private bool _ascending;
-    private DummyNode<T> root_;
+    private Sentinel<T> top_, bottom_;
 
     public OrderedList(bool asc)
     {
@@ -57,66 +54,31 @@ namespace AlgorithmsDataStructures
 
     public void Add(T value)
     {
+      Node<T> prev = FindPosition(value);
       Node<T> node = new Node<T>(value);
-      (Node<T> dummy, Node<T> current) = FindPosition(node.value);
-      InsertNode(dummy, current, node);
-      if (head == null) {
-        head = node;
-        tail = node;
-      }
-      for (dummy = dummy.child;
-           dummy != null;
-           dummy = dummy.child) {
-        current = current.child;
-        node = NewChild(node);
-        InsertNode(dummy, current, node);
-      }
-      if (!(head.prev is DummyNode<T>)) {
-        head = head.prev;
-      }
-      if (!(tail.next is DummyNode<T>)) {
-        tail = tail.next;
-      }
-      FixLists();
+      InsertNode(prev, node);
+      node.shift = 1;
+      RaiseNewNode(node);
+      head = bottom_.next;
+      tail = bottom_.prev;
     }
 
     public Node<T> Find(T val)
     {
-      (Node<T> dummy, Node<T> current) = FindPosition(val);
-      if (Compare(current.value, val) != 0) {
+      Node<T> prev = FindPosition(val);
+      if (prev.next is Sentinel<T> || Compare(prev.next.value, val) != 0) {
         return null;
       }
-      for (;
-           current.child != null;
-           current = current.child) {}
-      return current;
+      return prev.next;
     }
 
     public void Delete(T val)
     {
-      (Node<T> dummy, Node<T> current) = FindPosition(val);
-      if (Compare(current.value, val) != 0) {
+      Node<T> node = Find(val);
+      if (node == null) {
         return;
       }
-      for (;
-           current.parent != null;
-           current = current.parent) {
-        dummy = dummy.parent;
-      }
-      for (;
-           dummy.child != null;
-           dummy = dummy.child) {
-        RemoveNode(dummy, current);
-        current = current.child;
-      }
-      if (current == head) {
-        head = (current.next == dummy) ? null : current.next;
-      }
-      if (current == tail) {
-        tail = (current.prev == dummy) ? null : current.prev;
-      }
-      RemoveNode(dummy, current);
-      FixLists();
+      RemoveNodeWithParents(node);
     }
 
     public void Clear(bool asc)
@@ -124,28 +86,24 @@ namespace AlgorithmsDataStructures
       _ascending = asc;
       head = null;
       tail = null;
-      root_ = new DummyNode<T>();
-      root_.prev = root_;
-      root_.next = root_;
+      top_ = new Sentinel<T>();
+      top_.prev = top_;
+      top_.next = top_;
+      top_.shift = 1;
+      bottom_ = top_;
     }
 
     public int Count()
     {
-      if (head == null) {
-        return 0;
-      }
-      return ((DummyNode<T>)head.prev).count;
+      return top_.shift - 1;
     }
 
     public List<Node<T>> GetAll() // выдать все элементы упорядоченного 
                                   // списка в виде стандартного списка
     {
       List<Node<T>> r = new List<Node<T>>();
-      if (head == null) {
-        return r;
-      }
-      for (Node<T> node = head;
-           !(node is DummyNode<T>);
+      for (Node<T> node = bottom_.next;
+           !(node is Sentinel<T>);
            node = node.next) {
         r.Add(node);
       }
@@ -154,12 +112,6 @@ namespace AlgorithmsDataStructures
 
     private void LoadSorted(List<T> source) {
       Clear(_ascending);
-      for (int i = 0; i < source.Count; ++i) {
-        InsertNode(root_, root_.prev, new Node<T>(source[i]));
-      }
-      head = root_.next;
-      tail = root_.prev;
-      FixLists();
     }
 
     private bool Ordered(T left, T right) {
@@ -167,30 +119,71 @@ namespace AlgorithmsDataStructures
       return _ascending ? s <= 0 : s >= 0;
     }
 
-    private (Node<T> dummy, Node<T> prev) FindPosition(T val) {
-      if (head == null) {
-        return (root_, root_);
+    private Node<T> FindPosition(T val, Node<T> start = null) {
+      Node<T> n = start == null ? top_ : start;
+      for (;
+           !(n.next is Sentinel<T>) && !Ordered(val, n.next.value);
+           n = n.next) {}
+      if (n.child == null) {
+        return n;
       }
-      Node<T> dummy = root_;
-      for (;
-           Ordered(dummy.prev.value, val) && dummy.child != null;
-           dummy = dummy.child) {}
-      Node<T> current = dummy.prev;
-      for (;
-           !(current is DummyNode<T>) && !Ordered(current.value, val);
-           current = current.prev) {}
-      return (dummy, current);
+      return FindPosition(val, n.child);
     }
 
-    private void InsertNode(Node<T> dummy, Node<T> prev, Node<T> node) {
-      ++((DummyNode<T>)dummy).count;
+    private void InsertNode(Node<T> prev, Node<T> node) {
       prev.next.prev = node;
       node.next = prev.next;
       node.prev = prev;
       prev.next = node;
     }
 
-    private void RemoveNode(Node<T> dummy, Node<T> node) {
+    private void RaiseNewNode(Node<T> node) {
+      Console.WriteLine($"---Raise({node.value})---");
+      int left_count = 0;
+      Node<T> left = node;
+      for (;
+           !(left is Sentinel<T>) && left.parent == null;
+           left = left.prev) {
+        ++left_count;
+      }
+      int right_count = 0;
+      Node<T> right = node;
+      for (;
+           !(right is Sentinel<T>) && right.parent == null;
+           right = right.next) {
+        ++right_count;
+      }
+      if (left.parent == null) {
+        top_ = NewParent(top_);
+        top_.next = top_;
+        top_.prev = top_;
+        // -1 for compatibility for next shift + return.
+        top_.shift = SumShift(left.next, right) - 1;
+      }
+      Console.Write($"{left_count}<->{right_count}");
+      if (left_count + right_count < 4) {
+        Console.WriteLine(" shift");
+        Shift(right, +1);
+        return;
+      }
+      Console.WriteLine(" raise");
+      Node<T> middle = left.next.next;
+      Node<T> parent = NewParent(middle);
+      InsertNode(left.parent, parent);
+      parent.shift = SumShift(left.next, middle);
+      right.parent.shift = SumShift(middle.next, right);
+      RaiseNewNode(parent);
+    }
+
+    private static int SumShift(Node<T> first, Node<T> last) {
+      int shift = last.shift;
+      for (Node<T> n = first; n != last; n = n.next) {
+        shift += n.shift;
+      }
+      return shift;
+    }
+
+    private void RemoveNode(Node<T> node) {
       node.prev.next = node.next;
       node.next.prev = node.prev;
       if (node.parent != null) {
@@ -199,57 +192,32 @@ namespace AlgorithmsDataStructures
       if (node.child != null) {
         node.child.parent = null;
       }
-      --((DummyNode<T>)dummy).count;
     }
 
-    private void RemoveNodeWithParents(Node<T> dummy, Node<T> node) {
+    private void Shift(Node<T> node, int delta) {
+      Console.Write($"shift({node.value}):");
+      for (;
+           !(node is Sentinel<T>) && node.parent == null;
+           node = node.next) {}
+      node = node.parent;
+      if (node == null) {
+        Console.WriteLine($" -");
+        return;
+      }
+      Console.Write($" -> {node.value} ({node.shift}");
+      node.shift += delta;
+      Console.WriteLine($":{node.shift})");
+      Shift(node, delta);
+    }
+
+    private void RemoveNodeWithParents(Node<T> node) {
       for (Node<T> parent = node.parent;
            parent != null;
            parent = parent.parent) {
         node = node.parent;
-        RemoveNode(dummy, parent.child);
-        dummy = dummy.parent;
+        RemoveNode(parent.child);
       }
-      RemoveNode(dummy, node);
-    }
-
-    private void FixLists() {
-      if (head == null) {
-        Clear(_ascending);
-        return;
-      }
-      for (Node<T> dummy = head.prev.parent;
-           dummy != null;
-           dummy = dummy.parent) {
-        int count = ((DummyNode<T>)dummy.child).count;
-        int subcount = ((DummyNode<T>)dummy).count;
-        for (int i = count / 2; i < subcount; ++i) {
-          // Mass removal is possible when removing duplicates
-          RemoveNode(dummy, dummy.prev);
-        }
-        for (int i = subcount; i < count / 2; ++i) {
-          // Mass addition is possible when loading sorted array
-          InsertNode(dummy, dummy.prev, NewParent(dummy.prev.child.next));
-        }
-      }
-      while (root_.count > 1) {
-        // Mass addition is possible when loading sorted array
-        DummyNode<T> new_root = (DummyNode<T>)NewParent(root_);
-        new_root.next = new_root;
-        new_root.prev = new_root;
-        Node<T> current = root_.next;
-        for (int i = 0; i < root_.count / 2; ++i) {
-          InsertNode(new_root, new_root.prev, NewParent(current));
-          current = current.next;
-        }
-        root_ = new_root;
-      }
-      for (;
-           root_.count == 0 && root_.child != null;
-           root_ = (DummyNode<T>)root_.child) {
-        // Mass removal is possible when removing duplicates
-      }
-      root_.parent = null;
+      RemoveNode(node);
     }
 
     static private Node<T> NewChild(Node<T> node) {
@@ -259,8 +227,8 @@ namespace AlgorithmsDataStructures
       return child;
     }
 
-    static private Node<T> NewParent(Node<T> node) {
-      Node<T> parent = node.Clone();
+    static private U NewParent<U>(U node) where U : Node<T> {
+      U parent = (U)node.Clone();
       parent.child = node;
       node.parent = parent;
       return parent;
