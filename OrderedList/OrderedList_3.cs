@@ -11,7 +11,7 @@ public class OrderedListTest
   }
 
   private void CheckStructure<T>(OrderedList<T> list) {
-    Console.WriteLine("---Check---");
+    // Console.WriteLine("---Check---");
     if (list.head == null) {
       return;
     }
@@ -29,13 +29,13 @@ public class OrderedListTest
       int shift = 0;
       for (int i = 0; i < children.Count; ++i) {
         Node<T> x = children[i];
-        Console.Write($" {x.value}({x.shift})");
+        // Console.Write($" {x.value}({x.shift})");
         shift += x.shift;
         if (x.parent == null) {
           ++skip;
           continue;
         }
-        Console.Write("+");
+        // Console.Write("+");
         Assert.True(skip > 0);
         Assert.True(skip < 3);
         Assert.Equal(shift, x.parent.shift);
@@ -43,15 +43,15 @@ public class OrderedListTest
         skip = 0;
         shift = 0;
       }
-      Console.Write($" *({sentinel.shift})");
+      // Console.Write($" *({sentinel.shift})");
       shift += sentinel.shift;
       Assert.True(skip > 0);
       Assert.True(skip < 3);
       Assert.Equal(shift, sentinel.parent.shift);
       children = parents;
-      Console.WriteLine();
+      // Console.WriteLine();
     }
-    Console.WriteLine($" *({sentinel.shift})");
+    // Console.WriteLine($" *({sentinel.shift})");
     Assert.Equal(sentinel.next, sentinel);
     Assert.Equal(count + 1, sentinel.shift);
     Assert.Empty(children);
@@ -220,9 +220,7 @@ public class OrderedListTest
     Assert.Equal([30, 60, 70], ToValues(list.GetAll()));
     CheckStructure(list);
 
-    Console.WriteLine(">>>>>>>>>>");
     list.Delete(60);
-    CheckStructure(list);
     Assert.Equal(2, list.Count());
     Assert.Equal(30, list.head.value);
     Assert.Equal(70, list.tail.value);
@@ -417,27 +415,42 @@ public class OrderedListTest
     Assert.Equal(5, a.MostFrequent());
   }
 
-/* 
   [Fact]
   public void TestIndexOf() {
     OrderedList<int> a = new OrderedList<int>(true);
-    a.Add(1); // 0
-    a.Add(2); // 1
-    a.Add(3); // 2
-    a.Add(4); // 3
-    a.Add(4); // 4
-    a.Add(4); // 5
-    a.Add(5); // 6
-    a.Add(5); // 7
-    a.Add(5); // 8
-    a.Add(5); // 9
-    a.Add(5); // 10
-    a.Add(6); // 11
-    a.Add(6); // 12
-    a.Add(6); // 13
-    a.Add(7); // 14
-    a.Add(8); // 15
-    // Assert.Equal(-1, a.IndexOf(10));
+    a.Add(10); // 0
+    a.Add(20); // 1
+    a.Add(30); // 2
+    a.Add(40); // 3
+    a.Add(40); // 4
+    a.Add(40); // 5
+    a.Add(50); // 6
+    a.Add(50); // 7
+    a.Add(50); // 8
+    a.Add(50); // 9
+    a.Add(50); // 10
+    a.Add(60); // 11
+    a.Add(60); // 12
+    a.Add(60); // 13
+    a.Add(70); // 14
+    a.Add(80); // 15
+    CheckStructure(a);
+    Assert.Equal(-1, a.IndexOf(5));
+    Assert.Equal(0, a.IndexOf(10));
+    Assert.Equal(-1, a.IndexOf(15));
+    Assert.Equal(1, a.IndexOf(20));
+    Assert.Equal(-1, a.IndexOf(25));
+    Assert.Equal(2, a.IndexOf(30));
+    Assert.Equal(-1, a.IndexOf(35));
+    Assert.Contains(a.IndexOf(40), new SortedSet<int>([3, 4, 5]));
+    Assert.Equal(-1, a.IndexOf(45));
+    Assert.Contains(a.IndexOf(50), new SortedSet<int>([6, 7, 8, 9, 10]));
+    Assert.Equal(-1, a.IndexOf(55));
+    Assert.Contains(a.IndexOf(60), new SortedSet<int>([11, 12, 13]));
+    Assert.Equal(-1, a.IndexOf(65));
+    Assert.Equal(14, a.IndexOf(70));
+    Assert.Equal(-1, a.IndexOf(75));
+    Assert.Equal(15, a.IndexOf(80));
+    Assert.Equal(-1, a.IndexOf(85));
   }
-*/
 }

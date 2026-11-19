@@ -84,12 +84,10 @@ public partial class OrderedList<T> {
     }
     Node<T> a = top_;
     for (Node<T> b = other.head; !(b is Sentinel<T>); b = b.next) {
-      (Node<T> s, Node<T> x) = Scan(a, b.value);
-      if (x == null || Compare(x.value, b.value) != 0) {
+      a = Scan(a, b.value);
+      if (a == null || Compare(a.value, b.value) != 0) {
         return false;
       }
-      Console.WriteLine($"{s.value} {x.value}");
-      a = s;
     }
     return true;
   }
@@ -116,20 +114,46 @@ public partial class OrderedList<T> {
     return most_vf.Value.Item1;
   }
 
-  private (Node<T> start, Node<T> found) Scan(Node<T> start, T val) {
+  // 12.*
+  public int IndexOf(T val) {
+    return ScanIndex(0, top_, val);
+  }
+
+  private Node<T> Scan(Node<T> start, T val) {
     Node<T> current = start;
     for (;
          !(current.next is Sentinel<T>) && !Ordered(val, current.next.value);
-         current = current.next) {}
-    Console.WriteLine(current.value);
+         current = current.next) {
+      for (; current.parent != null; current = current.parent) {}
+    }
     if (!(current.next is Sentinel<T>)
           && Compare(val, current.next.value) == 0) {
-      return (current.next, current.next);
+      return current.next;
     }
     if (current.child == null) {
-      return (current, null);
+      return null;
     }
-    (Node<T> s, Node<T> x) = Scan(current.child, val);
-    return ((s.next is Sentinel<T>) ? s : current, x);
+    return Scan(current.child, val);
+  }
+
+  private int ScanIndex(int count, Node<T> start, T val) {
+    // Console.WriteLine($"---Scan({count}, {start.value}, {val})---");
+    Node<T> current = start;
+    for (;
+         !(current.next is Sentinel<T>) && !Ordered(val, current.next.value);
+         current = current.next) {
+      count += current.next.shift;
+      // Console.WriteLine($"{current.value}--{current.next.value}: {count}");
+    }
+    if (!(current.next is Sentinel<T>)
+          && Compare(val, current.next.value) == 0) {
+      // Console.WriteLine($"{current.next.value}: {count + current.next.shift - 1}");
+      return count + current.next.shift - 1;
+    }
+    if (current.child == null) {
+      // Console.WriteLine($"{current.value}");
+      return -1;
+    }
+    return ScanIndex(count, current.child, val);
   }
 }

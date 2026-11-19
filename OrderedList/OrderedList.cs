@@ -86,7 +86,7 @@ namespace AlgorithmsDataStructures
       Node<T> prev = node.prev;
       Node<T> next = node.next;
       for (; node.parent != null; node = node.parent) {}
-      Console.WriteLine(node.value);
+      // Console.WriteLine(node.value);
       Shift(node, -1);
       for (; node != null; node = node.child) {
         node.next.shift += node.shift - 1;
@@ -150,7 +150,7 @@ namespace AlgorithmsDataStructures
     }
 
     private void FixNodeAdd(Node<T> node) {
-      Console.WriteLine($"---Fix({node.value})---");
+      // Console.WriteLine($"---Fix({node.value})---");
       int left_count = 0;
       Node<T> left = node;
       for (;
@@ -171,13 +171,13 @@ namespace AlgorithmsDataStructures
         top_.prev = top_;
         top_.shift = SumShift(left.next, right);
       }
-      Console.Write($"{left_count}<->{right_count}");
+      // Console.Write($"{left_count}<->{right_count}");
       if (left_count + right_count < 4) {
-        Console.WriteLine(" -");
+        // Console.WriteLine(" -");
         return;
       }
       Node<T> middle = left.next.next;
-      Console.WriteLine($" raise({middle.value})");
+      // Console.WriteLine($" raise({middle.value})");
       Node<T> parent = NewParent(middle);
       InsertNode(left.parent, parent);
       parent.shift = SumShift(left.next, middle);
@@ -186,7 +186,7 @@ namespace AlgorithmsDataStructures
     }
 
     private void FixNodeDrop(Node<T> prev, Node<T> next) {
-      Console.WriteLine($"---FixDrop({prev.value}, {next.value})---");
+      // Console.WriteLine($"---FixDrop({prev.value}, {next.value})---");
       if (prev.next != next) {
         return;
       }
@@ -206,7 +206,7 @@ namespace AlgorithmsDataStructures
         return;
       }
       if (prev is Sentinel<T> || prev.parent.parent != null) {
-        Console.WriteLine($"{prev.value} [{next.value}]");
+        // Console.WriteLine($"{prev.value} [{next.value}]");
         Node<T> right_parent = next.parent.next;
         right_parent.shift += next.parent.shift;
         RemoveNode(next.parent);
@@ -215,7 +215,7 @@ namespace AlgorithmsDataStructures
         FixNodeDrop(prev.parent, right_parent);
         return;
       }
-      Console.WriteLine($"[{prev.value}] {next.value}");
+      // Console.WriteLine($"[{prev.value}] {next.value}");
       Node<T> left_parent = prev.parent.prev;
       prev.parent.next.shift += prev.parent.shift;
       RemoveNode(prev.parent);
@@ -250,18 +250,18 @@ namespace AlgorithmsDataStructures
     }
 
     private void Shift(Node<T> node, int delta) {
-      Console.Write($"shift({node.value}):");
+      // Console.Write($"shift({node.value}):");
       for (;
            !(node is Sentinel<T>) && node.parent == null;
            node = node.next) {}
       node = node.parent;
       if (node == null) {
-        Console.WriteLine($" -");
+        // Console.WriteLine($" -");
         return;
       }
-      Console.Write($" -> {node.value} ({node.shift}");
+      // Console.Write($" -> {node.value} ({node.shift}");
       node.shift += delta;
-      Console.WriteLine($":{node.shift})");
+      // Console.WriteLine($":{node.shift})");
       Shift(node, delta);
     }
 
@@ -277,10 +277,6 @@ namespace AlgorithmsDataStructures
       parent.child = node;
       node.parent = parent;
       return parent;
-    }
-
-    private void FixAfterRemove(Node<T> pos) {
-      
     }
   }
 }
