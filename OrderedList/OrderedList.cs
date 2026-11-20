@@ -37,40 +37,33 @@ namespace AlgorithmsDataStructures
 
     public void Add(T value)
     {
-      Node<T> next = head;
-      for (; next != null; next = next.next) {
-        int comparison = Compare(value, next.value);
-        if (_ascending ? comparison <= 0 : comparison >= 0) {
-          break;
-        }
-      }
       Node<T> node = new Node<T>(value);
-      node.prev = next == null ? tail : next.prev;
-      node.next = next;
-      if (node.prev == null) {
-        head = node;
-      } else {
-        node.prev.next = node;
+      if (head == null) {
+        InsertHead(node);
+        return;
       }
-      if (next == null) {
-        tail = node;
-      } else {
-        next.prev = node;
+      Node<T> previous = FindPosition(value);
+      if (previous == null) {
+        InsertHead(node);
+        return;
       }
+      InsertAfter(previous, node);
     }
 
     public Node<T> Find(T val)
     {
-      for (Node<T> node = head; node != null; node = node.next) {
-        int comparison = Compare(node.value, val);
-        if (comparison == 0) {
-          return node;
-        }
-        if (_ascending ? comparison > 0 : comparison < 0) {
-          return null;
-        }
+      Node<T> previous = FindPosition(val);
+      Node<T> current = previous == null ? head : previous.next;
+      if (current == null || Compare(current.value, val) != 0) {
+        return null;
       }
-      return null;
+      return current;
+    }
+
+    public bool Ordered(T left, T right)
+    {
+      int comparison = Compare(left, right);
+      return _ascending ? comparison <= 0 : comparison >= 0;
     }
 
     public void Delete(T val)
@@ -80,15 +73,75 @@ namespace AlgorithmsDataStructures
         return;
       }
       if (node.prev == null) {
-        head = node.next;
-      } else {
-        node.prev.next = node.next;
+        RemoveHead();
+        return;
       }
       if (node.next == null) {
-        tail = node.prev;
-      } else {
-        node.next.prev = node.prev;
+        RemoveTail();
+        return;
       }
+      RemoveMiddle(node);
+    }
+
+    private Node<T> FindPosition(T value)
+    {
+      Node<T> previous = null;
+      for (Node<T> current = head;
+           current != null && !Ordered(value, current.value);
+           current = current.next) {
+        previous = current;
+      }
+      return previous;
+    }
+
+    private void InsertAfter(Node<T> previous, Node<T> node)
+    {
+      node.prev = previous;
+      node.next = previous.next;
+      previous.next = node;
+      if (node.next == null) {
+        tail = node;
+        return;
+      }
+      node.next.prev = node;
+    }
+
+    private void InsertHead(Node<T> node)
+    {
+      node.prev = null;
+      node.next = head;
+      head = node;
+      if (node.next == null) {
+        tail = node;
+        return;
+      }
+      node.next.prev = node;
+    }
+
+    private void RemoveMiddle(Node<T> node)
+    {
+      node.prev.next = node.next;
+      node.next.prev = node.prev;
+    }
+
+    private void RemoveHead()
+    {
+      head = head.next;
+      if (head == null) {
+        tail = null;
+        return;
+      }
+      head.prev = null;
+    }
+
+    private void RemoveTail()
+    {
+      tail = tail.prev;
+      if (tail == null) {
+        head = null;
+        return;
+      }
+      tail.next = null;
     }
 
     public void Clear(bool asc)
