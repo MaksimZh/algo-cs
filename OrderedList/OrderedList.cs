@@ -7,32 +7,19 @@ namespace AlgorithmsDataStructures
   {
     public T value;
     public Node<T> next, prev;
-    public Node<T> parent, child;
-    public int shift;
 
     public Node(T _value)
     {
       value = _value;
       next = null;
       prev = null;
-      parent = null;
-      child = null;
-      shift = 0;
     }
-
-    public virtual Node<T> Clone() { return new Node<T>(value); }
-  }
-
-  public class Sentinel<T> : Node<T> {
-    public Sentinel() : base(default(T)) {}
-    public override Node<T> Clone() { return new Sentinel<T>(); }
   }
 
   public class OrderedList<T>
   {
-    public Node<T> head, tail;  // Bottom full list to fit tests if any
-    public bool _ascending;
-    public Sentinel<T> top_, bottom_;
+    public Node<T> head, tail;
+    private bool _ascending;
 
     public OrderedList(bool asc)
     {
@@ -50,23 +37,40 @@ namespace AlgorithmsDataStructures
 
     public void Add(T value)
     {
-      Node<T> prev = FindPosition(value);
+      Node<T> next = head;
+      for (; next != null; next = next.next) {
+        int comparison = Compare(value, next.value);
+        if (_ascending ? comparison <= 0 : comparison >= 0) {
+          break;
+        }
+      }
       Node<T> node = new Node<T>(value);
-      InsertNode(prev, node);
-      node.shift = 1;
-      Shift(node, +1);
-      FixNodeAdd(node);
-      head = bottom_.next;
-      tail = bottom_.prev;
+      node.prev = next == null ? tail : next.prev;
+      node.next = next;
+      if (node.prev == null) {
+        head = node;
+      } else {
+        node.prev.next = node;
+      }
+      if (next == null) {
+        tail = node;
+      } else {
+        next.prev = node;
+      }
     }
 
     public Node<T> Find(T val)
     {
-      Node<T> prev = FindPosition(val);
-      if (prev.next is Sentinel<T> || Compare(prev.next.value, val) != 0) {
-        return null;
+      for (Node<T> node = head; node != null; node = node.next) {
+        int comparison = Compare(node.value, val);
+        if (comparison == 0) {
+          return node;
+        }
+        if (_ascending ? comparison > 0 : comparison < 0) {
+          return null;
+        }
       }
-      return prev.next;
+      return null;
     }
 
     public void Delete(T val)
@@ -75,22 +79,16 @@ namespace AlgorithmsDataStructures
       if (node == null) {
         return;
       }
-      DeleteNode(node);
-    }
-
-    public void DeleteNode(Node<T> node) {
-      Node<T> prev = node.prev;
-      Node<T> next = node.next;
-      for (; node.parent != null; node = node.parent) {}
-      // Console.WriteLine(node.value);
-      Shift(node, -1);
-      for (; node != null; node = node.child) {
-        node.next.shift += node.shift - 1;
-        RemoveNode(node);
+      if (node.prev == null) {
+        head = node.next;
+      } else {
+        node.prev.next = node.next;
       }
-      FixNodeDrop(prev, next);
-      head = bottom_.next == bottom_ ? null : bottom_.next;
-      tail = bottom_.prev == bottom_ ? null : bottom_.prev;
+      if (node.next == null) {
+        tail = node.prev;
+      } else {
+        node.next.prev = node.prev;
+      }
     }
 
     public void Clear(bool asc)
@@ -98,181 +96,24 @@ namespace AlgorithmsDataStructures
       _ascending = asc;
       head = null;
       tail = null;
-      top_ = new Sentinel<T>();
-      top_.prev = top_;
-      top_.next = top_;
-      top_.shift = 1;
-      bottom_ = top_;
     }
 
     public int Count()
     {
-      return top_.shift - 1;
+      int count = 0;
+      for (Node<T> node = head; node != null; node = node.next) {
+        ++count;
+      }
+      return count;
     }
 
-    public List<Node<T>> GetAll() // выдать все элементы упорядоченного 
-                                  // списка в виде стандартного списка
+    public List<Node<T>> GetAll()
     {
-      List<Node<T>> r = new List<Node<T>>();
-      for (Node<T> node = bottom_.next;
-           !(node is Sentinel<T>);
-           node = node.next) {
-        r.Add(node);
+      List<Node<T>> result = new List<Node<T>>();
+      for (Node<T> node = head; node != null; node = node.next) {
+        result.Add(node);
       }
-      return r;
-    }
-
-    public bool Ordered(T left, T right) {
-      int s = Compare(left, right);
-      return _ascending ? s <= 0 : s >= 0;
-    }
-
-    public Node<T> FindPosition(T val, Node<T> start = null) {
-      Node<T> n = start == null ? top_ : start;
-      for (;
-           !(n.next is Sentinel<T>) && !Ordered(val, n.next.value);
-           n = n.next) {}
-      if (n.child == null) {
-        return n;
-      }
-      return FindPosition(val, n.child);
-    }
-
-    public void InsertNode(Node<T> prev, Node<T> node) {
-      prev.next.prev = node;
-      node.next = prev.next;
-      node.prev = prev;
-      prev.next = node;
-    }
-
-    public void FixNodeAdd(Node<T> node) {
-      // Console.WriteLine($"---Fix({node.value})---");
-      int left_count = 0;
-      Node<T> left = node;
-      for (;
-           !(left is Sentinel<T>) && left.parent == null;
-           left = left.prev) {
-        ++left_count;
-      }
-      int right_count = 0;
-      Node<T> right = node;
-      for (;
-           !(right is Sentinel<T>) && right.parent == null;
-           right = right.next) {
-        ++right_count;
-      }
-      if (left.parent == null) {
-        top_ = NewParent(top_);
-        top_.next = top_;
-        top_.prev = top_;
-        top_.shift = SumShift(left.next, right);
-      }
-      // Console.Write($"{left_count}<->{right_count}");
-      if (left_count + right_count < 4) {
-        // Console.WriteLine(" -");
-        return;
-      }
-      Node<T> middle = left.next.next;
-      // Console.WriteLine($" raise({middle.value})");
-      Node<T> parent = NewParent(middle);
-      InsertNode(left.parent, parent);
-      parent.shift = SumShift(left.next, middle);
-      right.parent.shift = SumShift(middle.next, right);
-      FixNodeAdd(parent);
-    }
-
-    public void FixNodeDrop(Node<T> prev, Node<T> next) {
-      // Console.WriteLine($"---FixDrop({prev.value}, {next.value})---");
-      if (prev.next != next) {
-        return;
-      }
-      if (prev == next) {
-        // Both top sentinel
-        FixTop();
-        return;
-      }
-      if (prev.parent == null) {
-        FixNodeAdd(prev);
-        FixTop();
-        return;
-      }
-      if (next.parent == null) {
-        FixNodeAdd(next);
-        FixTop();
-        return;
-      }
-      if (prev is Sentinel<T> || prev.parent.parent != null) {
-        // Console.WriteLine($"{prev.value} [{next.value}]");
-        Node<T> right_parent = next.parent.next;
-        right_parent.shift += next.parent.shift;
-        RemoveNode(next.parent);
-        next.parent = null;
-        FixNodeAdd(next);
-        FixNodeDrop(prev.parent, right_parent);
-        return;
-      }
-      // Console.WriteLine($"[{prev.value}] {next.value}");
-      Node<T> left_parent = prev.parent.prev;
-      prev.parent.next.shift += prev.parent.shift;
-      RemoveNode(prev.parent);
-      prev.parent = null;
-      FixNodeAdd(prev);
-      FixNodeDrop(left_parent, next.parent);
-    }
-
-    public void FixTop() {
-      if (top_.child == null) {
-        return;
-      }
-      Sentinel<T> child = (Sentinel<T>)top_.child;
-      if (child.next != child) {
-        return;
-      }
-      child.parent = null;
-      top_ = child;
-    }
-
-    public static int SumShift(Node<T> first, Node<T> last) {
-      int shift = last.shift;
-      for (Node<T> n = first; n != last; n = n.next) {
-        shift += n.shift;
-      }
-      return shift;
-    }
-
-    public void RemoveNode(Node<T> node) {
-      node.prev.next = node.next;
-      node.next.prev = node.prev;
-    }
-
-    public void Shift(Node<T> node, int delta) {
-      // Console.Write($"shift({node.value}):");
-      for (;
-           !(node is Sentinel<T>) && node.parent == null;
-           node = node.next) {}
-      node = node.parent;
-      if (node == null) {
-        // Console.WriteLine($" -");
-        return;
-      }
-      // Console.Write($" -> {node.value} ({node.shift}");
-      node.shift += delta;
-      // Console.WriteLine($":{node.shift})");
-      Shift(node, delta);
-    }
-
-    static public Node<T> NewChild(Node<T> node) {
-      Node<T> child = node.Clone();
-      node.child = child;
-      child.parent = node;
-      return child;
-    }
-
-    static public U NewParent<U>(U node) where U : Node<T> {
-      U parent = (U)node.Clone();
-      parent.child = node;
-      node.parent = parent;
-      return parent;
+      return result;
     }
   }
 }
