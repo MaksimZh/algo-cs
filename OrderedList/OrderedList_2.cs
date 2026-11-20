@@ -31,7 +31,9 @@
 
 namespace AlgorithmsDataStructures;
 
-public partial class OrderedList<T> {
+public class OrderedListX<T> : OrderedList<T> {
+  public OrderedListX(bool asc) : base(asc) {}
+
   // 8.*
   public void RemoveDuplicates() {
     if (head == null) {
@@ -48,11 +50,11 @@ public partial class OrderedList<T> {
   }
 
   // 9.*
-  public OrderedList<T> Merge(OrderedList<T> other) {
+  public OrderedListX<T> Merge(OrderedListX<T> other) {
     if (other._ascending != _ascending) {
-      return new OrderedList<T>(_ascending);
+      return new OrderedListX<T>(_ascending);
     }
-    OrderedList<T> result = new OrderedList<T>(_ascending);
+    OrderedListX<T> result = new OrderedListX<T>(_ascending);
 
     // Head may be null. Find the dummy nodes instead.
     Node<T> a = bottom_.next;
@@ -73,7 +75,7 @@ public partial class OrderedList<T> {
   }
 
   // 10.*
-  public bool HasSublist(OrderedList<T> other) {
+  public bool HasSublist(OrderedListX<T> other) {
     if (other.head == null) {
       // Empty sublist fits everywhere.
       return true;

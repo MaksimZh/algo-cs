@@ -25,18 +25,18 @@ namespace AlgorithmsDataStructures
     public virtual Node<T> Child() { return child; }
   }
 
-  class Sentinel<T> : Node<T> {
+  public class Sentinel<T> : Node<T> {
     public Sentinel() : base(default(T)) {}
     public override Sentinel<T> Clone() { return new Sentinel<T>(); }
     public override Sentinel<T> Parent() { return (Sentinel<T>)parent; }
     public override Sentinel<T> Child() { return (Sentinel<T>)child; }
   }
 
-  public partial class OrderedList<T>
+  public class OrderedList<T>
   {
     public Node<T> head, tail;  // Bottom full list to fit tests if any
-    private bool _ascending;
-    private Sentinel<T> top_, bottom_;
+    public bool _ascending;
+    public Sentinel<T> top_, bottom_;
 
     public OrderedList(bool asc)
     {
@@ -82,7 +82,7 @@ namespace AlgorithmsDataStructures
       DeleteNode(node);
     }
 
-    private void DeleteNode(Node<T> node) {
+    public void DeleteNode(Node<T> node) {
       Node<T> prev = node.prev;
       Node<T> next = node.next;
       for (; node.parent != null; node = node.parent) {}
@@ -126,12 +126,12 @@ namespace AlgorithmsDataStructures
       return r;
     }
 
-    private bool Ordered(T left, T right) {
+    public bool Ordered(T left, T right) {
       int s = Compare(left, right);
       return _ascending ? s <= 0 : s >= 0;
     }
 
-    private Node<T> FindPosition(T val, Node<T> start = null) {
+    public Node<T> FindPosition(T val, Node<T> start = null) {
       Node<T> n = start == null ? top_ : start;
       for (;
            !(n.next is Sentinel<T>) && !Ordered(val, n.next.value);
@@ -142,14 +142,14 @@ namespace AlgorithmsDataStructures
       return FindPosition(val, n.child);
     }
 
-    private void InsertNode(Node<T> prev, Node<T> node) {
+    public void InsertNode(Node<T> prev, Node<T> node) {
       prev.next.prev = node;
       node.next = prev.next;
       node.prev = prev;
       prev.next = node;
     }
 
-    private void FixNodeAdd(Node<T> node) {
+    public void FixNodeAdd(Node<T> node) {
       // Console.WriteLine($"---Fix({node.value})---");
       int left_count = 0;
       Node<T> left = node;
@@ -185,7 +185,7 @@ namespace AlgorithmsDataStructures
       FixNodeAdd(parent);
     }
 
-    private void FixNodeDrop(Node<T> prev, Node<T> next) {
+    public void FixNodeDrop(Node<T> prev, Node<T> next) {
       // Console.WriteLine($"---FixDrop({prev.value}, {next.value})---");
       if (prev.next != next) {
         return;
@@ -224,7 +224,7 @@ namespace AlgorithmsDataStructures
       FixNodeDrop(left_parent, next.parent);
     }
 
-    private void FixTop() {
+    public void FixTop() {
       if (top_.child == null) {
         return;
       }
@@ -236,7 +236,7 @@ namespace AlgorithmsDataStructures
       top_ = child;
     }
 
-    private static int SumShift(Node<T> first, Node<T> last) {
+    public static int SumShift(Node<T> first, Node<T> last) {
       int shift = last.shift;
       for (Node<T> n = first; n != last; n = n.next) {
         shift += n.shift;
@@ -244,12 +244,12 @@ namespace AlgorithmsDataStructures
       return shift;
     }
 
-    private void RemoveNode(Node<T> node) {
+    public void RemoveNode(Node<T> node) {
       node.prev.next = node.next;
       node.next.prev = node.prev;
     }
 
-    private void Shift(Node<T> node, int delta) {
+    public void Shift(Node<T> node, int delta) {
       // Console.Write($"shift({node.value}):");
       for (;
            !(node is Sentinel<T>) && node.parent == null;
@@ -265,14 +265,14 @@ namespace AlgorithmsDataStructures
       Shift(node, delta);
     }
 
-    static private Node<T> NewChild(Node<T> node) {
+    static public Node<T> NewChild(Node<T> node) {
       Node<T> child = node.Clone();
       node.child = child;
       child.parent = node;
       return child;
     }
 
-    static private U NewParent<U>(U node) where U : Node<T> {
+    static public U NewParent<U>(U node) where U : Node<T> {
       U parent = (U)node.Clone();
       parent.child = node;
       node.parent = parent;

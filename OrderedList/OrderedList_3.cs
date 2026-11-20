@@ -317,7 +317,7 @@ public class OrderedListTest
 
   [Fact]
   public void TestRemoveDuplicates() {
-    OrderedList<int> list = new OrderedList<int>(true);
+    OrderedListX<int> list = new OrderedListX<int>(true);
     list.Add(10);
     list.Add(20);
     list.Add(30);
@@ -338,9 +338,9 @@ public class OrderedListTest
 
   [Fact]
   public void TestMerge() {
-    OrderedList<int> a = new OrderedList<int>(true);
-    OrderedList<int> b = new OrderedList<int>(true);
-    OrderedList<int> x;
+    OrderedListX<int> a = new OrderedListX<int>(true);
+    OrderedListX<int> b = new OrderedListX<int>(true);
+    OrderedListX<int> x;
     x = a.Merge(b);
     Assert.Equal([], ToValues(x.GetAll()));
 
@@ -362,7 +362,7 @@ public class OrderedListTest
 
   [Fact]
   public void TestSublist() {
-    OrderedList<int> a = new OrderedList<int>(true);
+    OrderedListX<int> a = new OrderedListX<int>(true);
     a.Add(1);
     a.Add(2);
     a.Add(3);
@@ -376,7 +376,7 @@ public class OrderedListTest
     a.Add(7);
     a.Add(8);
 
-    OrderedList<int> b = new OrderedList<int>(true);
+    OrderedListX<int> b = new OrderedListX<int>(true);
     b.Add(2);
     b.Add(5);
     b.Add(6);
@@ -395,7 +395,7 @@ public class OrderedListTest
 
   [Fact]
   public void TestMostFrequent() {
-    OrderedList<int> a = new OrderedList<int>(true);
+    OrderedListX<int> a = new OrderedListX<int>(true);
     a.Add(1);
     a.Add(2);
     a.Add(3);
@@ -417,7 +417,7 @@ public class OrderedListTest
 
   [Fact]
   public void TestIndexOf() {
-    OrderedList<int> a = new OrderedList<int>(true);
+    OrderedListX<int> a = new OrderedListX<int>(true);
     a.Add(10); // 0
     a.Add(20); // 1
     a.Add(30); // 2
