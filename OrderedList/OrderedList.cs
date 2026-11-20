@@ -21,15 +21,11 @@ namespace AlgorithmsDataStructures
     }
 
     public virtual Node<T> Clone() { return new Node<T>(value); }
-    public virtual Node<T> Parent() { return parent; }
-    public virtual Node<T> Child() { return child; }
   }
 
   public class Sentinel<T> : Node<T> {
     public Sentinel() : base(default(T)) {}
-    public override Sentinel<T> Clone() { return new Sentinel<T>(); }
-    public override Sentinel<T> Parent() { return (Sentinel<T>)parent; }
-    public override Sentinel<T> Child() { return (Sentinel<T>)child; }
+    public override Node<T> Clone() { return new Sentinel<T>(); }
   }
 
   public class OrderedList<T>
@@ -228,7 +224,7 @@ namespace AlgorithmsDataStructures
       if (top_.child == null) {
         return;
       }
-      Sentinel<T> child = top_.Child();
+      Sentinel<T> child = (Sentinel<T>)top_.child;
       if (child.next != child) {
         return;
       }
